@@ -1,0 +1,77 @@
+{
+  "expo": {
+    "owner": "ragaeeb",
+    "name": "Salat10",
+    "slug": "salat10-native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "salat10",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f88b3"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ragaeeb.salat10",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Salat10 needs your location to calculate accurate prayer times for your area.",
+        "NSCameraUsageDescription": "Salat10 uses the camera to show an AR overlay for the Qibla direction finder.",
+        "NSMotionUsageDescription": "Salat10 uses motion sensors to determine compass heading for Qibla direction.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.ragaeeb.salat10",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f88b3",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c7cf2e27-672c-48ec-b3e3-c23feb551a75"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Salat10 uses the camera to show an AR overlay for the Qibla direction finder."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Salat10 needs your location to calculate accurate prayer times for your area."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c7cf2e27-672c-48ec-b3e3-c23feb551a75"
+      }
+    }
+  }
+}
