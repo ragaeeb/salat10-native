@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import quotesData from '@/assets/data/quotes.json';
 import { getRandomQuote } from '@/lib/quotes';
 import { useCurrentData } from '@/store/usePrayerStore';
@@ -8,10 +7,7 @@ export type MotivationalQuoteState = { error: boolean; loading: boolean; quote: 
 
 export const useMotivationalQuote = (): MotivationalQuoteState => {
     const currentData = useCurrentData();
-
-    const quote = useMemo(() => {
-        return currentData ? getRandomQuote(currentData, quotesData.quotes) : null;
-    }, [currentData]);
+    const quote = currentData ? getRandomQuote(currentData, quotesData.quotes) : null;
 
     return { error: false, loading: false, quote };
 };

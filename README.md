@@ -1,5 +1,15 @@
 # Salat10
 
+[![wakatime](https://wakatime.com/badge/user/a0b906ce-b8e7-4463-8bce-383238df6d4b/project/b2ee8421-f639-4521-827c-e78999086ed6.svg)](https://wakatime.com/badge/user/a0b906ce-b8e7-4463-8bce-383238df6d4b/project/b2ee8421-f639-4521-827c-e78999086ed6)
+[![codecov](https://codecov.io/gh/ragaeeb/salat10-native/graph/badge.svg?token=L0OM6TGQVP)](https://codecov.io/gh/ragaeeb/salat10-native)
+[![Expo SDK](https://img.shields.io/badge/Expo%20SDK-55-000020?logo=expo)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.83-61DAFB?logo=react)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Bun](https://img.shields.io/badge/Package%20Manager-Bun-000000?logo=bun)](https://bun.sh/)
+[![EAS Build](https://img.shields.io/badge/Builds-EAS-0B1021?logo=expo)](https://docs.expo.dev/build/introduction/)
+[![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-0f88b3)](https://expo.dev/)
+[![Offline First](https://img.shields.io/badge/Offline-First-16a34a)](#features)
+
 An Islamic prayer times app built with React Native and Expo. Displays accurate prayer times, monthly timetables, prayer trend charts, and an AR Qibla compass -- all calculated on-device with no server required.
 
 ## Features
@@ -283,7 +293,7 @@ bun start
 
 ### Quotes keep changing rapidly
 
-This was a bug that has been fixed. If you see it, make sure `useMotivationalQuote` uses `useMemo` with `currentData` as the dependency so `getRandomQuote` only runs when the active prayer changes, not on every render tick.
+This was a bug that has been fixed. The React Compiler now automatically memoizes the computation so `getRandomQuote` only runs when the active prayer changes, not on every render tick.
 
 ### EAS build fails with "Which account should own this project?"
 

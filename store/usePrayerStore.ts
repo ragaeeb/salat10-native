@@ -106,7 +106,7 @@ export const usePrayerStore = create<PrayerStore>()(
             onRehydrateStorage: () => {
                 return (state) => {
                     if (state) {
-                        state.hasHydrated = true;
+                        usePrayerStore.setState({ hasHydrated: true });
 
                         if (hasValidCoordinates(state.settings)) {
                             state.computePrayerTimes();
@@ -125,7 +125,7 @@ export const useCurrentData = () => usePrayerStore((state) => state.currentData)
 export const useHasValidCoordinates = () => usePrayerStore((state) => hasValidCoordinates(state.settings));
 export const useHasHydrated = () => usePrayerStore((state) => state.hasHydrated);
 
-const safeParseFloat = (value: string, fallback = 0): number => {
+const safeParseFloat = (value: string, fallback = NaN): number => {
     const n = Number.parseFloat(value);
     return Number.isFinite(n) ? n : fallback;
 };

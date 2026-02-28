@@ -20,18 +20,22 @@ export function computePrayerTimesForDate(settings: Settings, date: Date): Compu
     const ishaAngle = Number.parseFloat(settings.ishaAngle);
     const ishaInterval = Number.parseFloat(settings.ishaInterval);
 
-    const params = createParameters({
-        fajrAngle: Number.isFinite(fajrAngle) ? fajrAngle : 0,
-        ishaAngle: Number.isFinite(ishaAngle) ? ishaAngle : 0,
-        ishaInterval: Number.isFinite(ishaInterval) ? ishaInterval : 0,
-        method: settings.method,
-    });
+    try {
+        const params = createParameters({
+            fajrAngle: Number.isFinite(fajrAngle) ? fajrAngle : 0,
+            ishaAngle: Number.isFinite(ishaAngle) ? ishaAngle : 0,
+            ishaInterval: Number.isFinite(ishaInterval) ? ishaInterval : 0,
+            method: settings.method,
+        });
 
-    const coordinates = new Coordinates(lat, lon);
-    const prayerTimes = new PrayerTimes(coordinates, date, params);
-    const sunnahTimes = new SunnahTimes(prayerTimes);
+        const coordinates = new Coordinates(lat, lon);
+        const prayerTimes = new PrayerTimes(coordinates, date, params);
+        const sunnahTimes = new SunnahTimes(prayerTimes);
 
-    return { computedAt: Date.now(), date, prayerTimes, sunnahTimes };
+        return { computedAt: Date.now(), date, prayerTimes, sunnahTimes };
+    } catch {
+        return null;
+    }
 }
 
 export function findNextEventTime(data: ComputedPrayerData | null): Date | null {

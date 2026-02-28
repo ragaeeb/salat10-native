@@ -1,44 +1,37 @@
 import { useEffect, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { type CalculationConfig, daily, formatTimeRemaining, getActiveEvent, getTimeUntilNext } from '@/lib/calculator';
-import { useCurrentData, useSettings } from '@/store/usePrayerStore';
+import { useCurrentData, usePrayerStore } from '@/store/usePrayerStore';
 import { type SalatEvent, salatLabels } from './constants';
 import { formatDate } from './formatting';
 
+const useCalculationConfigInternal = (): CalculationConfig =>
+    usePrayerStore(
+        useShallow((state) => ({
+            fajrAngle: Number.parseFloat(state.settings.fajrAngle),
+            ishaAngle: Number.parseFloat(state.settings.ishaAngle),
+            ishaInterval: Number.parseFloat(state.settings.ishaInterval),
+            latitude: state.settings.latitude,
+            longitude: state.settings.longitude,
+            method: state.settings.method,
+            timeZone: state.settings.timeZone,
+        })),
+    );
+
 const useCurrentTimings = () => {
     const currentData = useCurrentData();
-    const settings = useSettings();
+    const config = useCalculationConfigInternal();
 
     if (!currentData) {
         return [];
     }
-
-    const config: CalculationConfig = {
-        fajrAngle: Number.parseFloat(settings.fajrAngle),
-        ishaAngle: Number.parseFloat(settings.ishaAngle),
-        ishaInterval: Number.parseFloat(settings.ishaInterval),
-        latitude: settings.latitude,
-        longitude: settings.longitude,
-        method: settings.method,
-        timeZone: settings.timeZone,
-    };
 
     const result = daily(salatLabels, config, currentData.date);
     return result.timings;
 };
 
 export const useTimingsForDate = (date: Date) => {
-    const settings = useSettings();
-
-    const config: CalculationConfig = {
-        fajrAngle: Number.parseFloat(settings.fajrAngle),
-        ishaAngle: Number.parseFloat(settings.ishaAngle),
-        ishaInterval: Number.parseFloat(settings.ishaInterval),
-        latitude: settings.latitude,
-        longitude: settings.longitude,
-        method: settings.method,
-        timeZone: settings.timeZone,
-    };
-
+    const config = useCalculationConfigInternal();
     return daily(salatLabels, config, date);
 };
 
@@ -52,26 +45,25 @@ export const useActiveEvent = () => {
             return;
         }
 
-        const updateActiveEvent = () => {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+        const scheduleNext = () => {
             const now = Date.now();
             const event = getActiveEvent(timings, now);
             setActiveEvent(event);
-            return now;
+
+            const nextTiming = timings.find((t) => t.value.getTime() > now);
+            if (!nextTiming) return;
+
+            const msUntilNext = nextTiming.value.getTime() - now;
+            timeoutId = setTimeout(scheduleNext, msUntilNext);
         };
 
-        const currentTime = updateActiveEvent();
-        const nextTiming = timings.find((t) => t.value.getTime() > currentTime);
+        scheduleNext();
 
-        if (!nextTiming) {
-            return;
-        }
-
-        const msUntilNext = nextTiming.value.getTime() - currentTime;
-        const timeoutId = setTimeout(() => {
-            updateActiveEvent();
-        }, msUntilNext);
-
-        return () => clearTimeout(timeoutId);
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [timings]);
 
     return activeEvent;
@@ -174,16 +166,4 @@ export const useDayNavigation = () => {
     return { dateLabel, handleNextDay, handlePrevDay, handleToday, timings, viewDate: effectiveDate };
 };
 
-export const useCalculationConfig = (): CalculationConfig => {
-    const settings = useSettings();
-
-    return {
-        fajrAngle: Number.parseFloat(settings.fajrAngle),
-        ishaAngle: Number.parseFloat(settings.ishaAngle),
-        ishaInterval: Number.parseFloat(settings.ishaInterval),
-        latitude: settings.latitude,
-        longitude: settings.longitude,
-        method: settings.method,
-        timeZone: settings.timeZone,
-    };
-};
+export const useCalculationConfig = (): CalculationConfig => useCalculationConfigInternal();

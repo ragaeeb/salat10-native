@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { theme } from '@/constants/theme';
 
@@ -37,7 +37,7 @@ export function CalendarPicker({ visible, title, value, onSelect, onClose }: Pro
     const firstDay = getFirstDayOfWeek(viewYear, viewMonth);
     const monthLabel = new Date(viewYear, viewMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-    const handlePrevMonth = useCallback(() => {
+    const handlePrevMonth = () => {
         setViewMonth((m) => {
             if (m === 0) {
                 setViewYear((y) => y - 1);
@@ -45,9 +45,9 @@ export function CalendarPicker({ visible, title, value, onSelect, onClose }: Pro
             }
             return m - 1;
         });
-    }, []);
+    };
 
-    const handleNextMonth = useCallback(() => {
+    const handleNextMonth = () => {
         setViewMonth((m) => {
             if (m === 11) {
                 setViewYear((y) => y + 1);
@@ -55,17 +55,17 @@ export function CalendarPicker({ visible, title, value, onSelect, onClose }: Pro
             }
             return m + 1;
         });
-    }, []);
+    };
 
-    const handleDayPress = useCallback((day: number) => {
+    const handleDayPress = (day: number) => {
         const d = new Date(viewYear, viewMonth, day, 0, 0, 0, 0);
         setSelected(d);
-    }, [viewYear, viewMonth]);
+    };
 
-    const handleConfirm = useCallback(() => {
+    const handleConfirm = () => {
         onSelect(selected);
         onClose();
-    }, [selected, onSelect, onClose]);
+    };
 
     const cells: (number | null)[] = [];
     for (let i = 0; i < firstDay; i++) {

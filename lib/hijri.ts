@@ -127,52 +127,18 @@ const kuwaiticalendar = (adjust: number, now: Date): KuwaitiResult => {
     };
 };
 
-export type HijriExplanation = {
-    weekdayName: string;
-    julianDayNumber: number;
-    offsetFromEpoch: number;
-    constants: { epoch: number; cycleDays: number; averageYear: number; shift: number };
-    cycle: { index: number; remainderDays: number; yearsIntoCycle: number; remainderAfterYears: number };
-    islamic: { day: number; monthIndex: number; monthName: string; year: number };
-    monthCalculation: { rawMonth: number };
-};
-
-export const explainHijriConversion = (adjustment: number, today: Date): HijriExplanation => {
-    const result = kuwaiticalendar(adjustment, today);
-    const yearsIntoCycle = result.islamicYear - 30 * result.cycleIndex;
-    const safeMonthIndex = Math.min(Math.max(result.islamicMonthIndex, 0), islamicMonthNames.length - 1);
-    const monthName = islamicMonthNames[safeMonthIndex] ?? islamicMonthNames[0]!;
-    const safeWeekdayIndex = Math.min(Math.max(result.weekdayIndex, 0), weekdayNames.length - 1);
-    const weekdayName = weekdayNames[safeWeekdayIndex] ?? weekdayNames[0]!;
-
-    return {
-        constants: {
-            averageYear: KUWAITI_AVERAGE_YEAR,
-            cycleDays: KUWAITI_CYCLE_DAYS,
-            epoch: KUWAITI_EPOCH,
-            shift: KUWAITI_SHIFT,
-        },
-        cycle: {
-            index: result.cycleIndex,
-            remainderAfterYears: result.remainderAfterYears,
-            remainderDays: result.remainderAfterCycles,
-            yearsIntoCycle,
-        },
-        islamic: { day: result.islamicDay, monthIndex: result.islamicMonthIndex, monthName, year: result.islamicYear },
-        julianDayNumber: result.julianDayNumber,
-        monthCalculation: { rawMonth: result.rawMonth },
-        offsetFromEpoch: result.rawJulianDay - KUWAITI_EPOCH,
-        weekdayName,
-    };
-};
-
 export const writeIslamicDate = (adjustment: number, today: Date): HijriDate => {
-    const explained = explainHijriConversion(adjustment, today);
+    const result = kuwaiticalendar(adjustment, today);
+    const safeMonthIndex = Math.min(Math.max(result.islamicMonthIndex, 0), islamicMonthNames.length - 1);
+    const monthName = islamicMonthNames[safeMonthIndex] ?? 'al-Muḥarram';
+    const safeWeekdayIndex = Math.min(Math.max(result.weekdayIndex, 0), weekdayNames.length - 1);
+    const weekdayName = weekdayNames[safeWeekdayIndex] ?? 'al-ʾAḥad';
+
     return {
-        date: explained.islamic.day,
-        day: explained.weekdayName,
-        month: explained.islamic.monthName,
-        monthIndex: explained.islamic.monthIndex,
-        year: explained.islamic.year,
+        date: result.islamicDay,
+        day: weekdayName,
+        month: monthName,
+        monthIndex: result.islamicMonthIndex,
+        year: result.islamicYear,
     };
 };

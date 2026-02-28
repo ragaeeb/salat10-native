@@ -14,7 +14,8 @@
     "build:preview": "eas build --profile preview --platform all",
     "build:production": "eas build --profile production --platform all",
     "device:register": "eas device:create",
-    "deploy": "./scripts/build.sh"
+    "deploy": "./scripts/build.sh",
+    "test": "bun test"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -22,6 +23,7 @@
     "@react-navigation/native": "^7.1.28",
     "@shopify/react-native-skia": "^2.4.21",
     "adhan": "^4.4.3",
+    "babel-plugin-react-compiler": "19.1.0-rc.3",
     "date-fns": "^4.1.0",
     "expo": "~55.0.3",
     "expo-camera": "~55.0.9",
@@ -58,5 +60,7 @@
     "typescript": "~5.9.2"
   },
   "private": true,
-  "trustedDependencies": ["@shopify/react-native-skia"]
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
 }

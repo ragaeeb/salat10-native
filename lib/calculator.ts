@@ -24,6 +24,7 @@ export type CalculationConfig = {
 
 export type DailyResult = {
     date: string;
+    dayOfMonth: number;
     timings: FormattedTiming[];
     nextEventTime: Date | null;
 };
@@ -75,7 +76,7 @@ export const daily = (salatLabels: Record<string, string>, config: CalculationCo
     const now = Date.now();
     const nextEventTime = timings.find((t) => t.value.getTime() > now)?.value ?? null;
 
-    return { date: formatDate(prayerTimes.fajr), nextEventTime, timings };
+    return { date: formatDate(prayerTimes.fajr), dayOfMonth: date.getDate(), nextEventTime, timings };
 };
 
 export const monthly = (salatLabels: Record<string, string>, config: CalculationConfig, targetDate = new Date()) => {
@@ -93,20 +94,6 @@ export const monthly = (salatLabels: Record<string, string>, config: Calculation
     const monthName = targetDate.toLocaleDateString('en-US', { month: 'long' });
 
     return { dates: times, label: `${monthName} ${year}` };
-};
-
-export const yearly = (salatLabels: Record<string, string>, config: CalculationConfig, targetDate = new Date()) => {
-    const times: DailyResult[] = [];
-    const current = new Date(targetDate.getFullYear(), 0, 1);
-    const lastDayOfYear = new Date(current.getFullYear(), 11, 31);
-
-    while (current <= lastDayOfYear) {
-        const result = daily(salatLabels, config, current);
-        times.push(result);
-        current.setDate(current.getDate() + 1);
-    }
-
-    return { dates: times, label: targetDate.getFullYear() };
 };
 
 export const getActiveEvent = (timings: FormattedTiming[], timestamp: number): SalatEvent | null => {
@@ -142,14 +129,6 @@ export const getActiveEvent = (timings: FormattedTiming[], timestamp: number): S
     }
 
     return timings[timings.length - 1]?.event ?? null;
-};
-
-export const getNextEvent = (timings: FormattedTiming[], timestamp: number): string | null => {
-    if (!timings || timings.length === 0) {
-        return null;
-    }
-    const nextEntry = timings.find((timing) => timing.value.getTime() > timestamp);
-    return nextEntry?.event ?? null;
 };
 
 export const getTimeUntilNext = (timings: FormattedTiming[], timestamp: number): number | null => {
