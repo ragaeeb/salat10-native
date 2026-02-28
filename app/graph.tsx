@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { matchFont } from '@shopify/react-native-skia';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CartesianChart, Line } from 'victory-native';
@@ -51,9 +51,10 @@ const getDefaultTo = (): Date => {
     return d;
 };
 
-const chartFont = matchFont({ fontSize: 11, fontFamily: Platform.select({ ios: 'Helvetica', default: 'sans-serif' }) });
+const chartFontStyle = { fontSize: 11, fontFamily: Platform.select({ ios: 'Helvetica', default: 'sans-serif' }) };
 
 export default function GraphScreen() {
+    const chartFont = matchFont(chartFontStyle);
     const router = useRouter();
     const hasValidCoords = useHasValidCoordinates();
     const config = useCalculationConfig();
@@ -63,7 +64,7 @@ export default function GraphScreen() {
     const [showEventPicker, setShowEventPicker] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState<'from' | 'to' | null>(null);
 
-    const chartData = useMemo(() => {
+    const chartData = (() => {
         if (!hasValidCoords) return [];
 
         const data: { x: number; y: number; dateLabel: string }[] = [];
@@ -80,48 +81,48 @@ export default function GraphScreen() {
         }
 
         return data;
-    }, [hasValidCoords, config, fromDate, toDate, selectedEvent]);
+    })();
 
-    const xTickLabels = useMemo(() => {
+    const xTickLabels = (() => {
         const map: Record<number, string> = {};
         for (const d of chartData) {
             map[d.x] = d.dateLabel;
         }
         return map;
-    }, [chartData]);
+    })();
 
     const color = getColorFor(selectedEvent, 0);
     const selectedEventLabel = SELECTABLE_EVENTS.find((e) => e.event === selectedEvent)?.label ?? 'Fajr';
 
-    const handleSelectEvent = useCallback((event: PrayerEvent) => {
+    const handleSelectEvent = (event: PrayerEvent) => {
         setSelectedEvent(event);
         setShowEventPicker(false);
-    }, []);
+    };
 
-    const handleFromSelect = useCallback((date: Date) => {
+    const handleFromSelect = (date: Date) => {
         setFromDate(date);
         if (date > toDate) {
             const newTo = new Date(date);
             newTo.setMonth(newTo.getMonth() + 1, 0);
             setToDate(newTo);
         }
-    }, [toDate]);
+    };
 
-    const handleToSelect = useCallback((date: Date) => {
+    const handleToSelect = (date: Date) => {
         setToDate(date);
         if (date < fromDate) {
             const newFrom = new Date(date);
             newFrom.setDate(1);
             setFromDate(newFrom);
         }
-    }, [fromDate]);
+    };
 
-    const handleThisMonth = useCallback(() => {
+    const handleThisMonth = () => {
         setFromDate(getDefaultFrom());
         setToDate(getDefaultTo());
-    }, []);
+    };
 
-    const handleNext3Months = useCallback(() => {
+    const handleNext3Months = () => {
         const from = new Date();
         from.setHours(0, 0, 0, 0);
         const to = new Date();
@@ -129,9 +130,9 @@ export default function GraphScreen() {
         to.setHours(0, 0, 0, 0);
         setFromDate(from);
         setToDate(to);
-    }, []);
+    };
 
-    const handleFullYear = useCallback(() => {
+    const handleFullYear = () => {
         const from = new Date();
         from.setMonth(0, 1);
         from.setHours(0, 0, 0, 0);
@@ -140,7 +141,7 @@ export default function GraphScreen() {
         to.setHours(0, 0, 0, 0);
         setFromDate(from);
         setToDate(to);
-    }, []);
+    };
 
     if (!hasValidCoords) {
         return (

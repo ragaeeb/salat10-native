@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Animated, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { theme } from '@/constants/theme';
 import { formatCitation } from '@/lib/quotes';
@@ -20,7 +20,7 @@ export function QuoteCard({ quote }: Props) {
     const [copied, setCopied] = useState(false);
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const handleCopy = useCallback(async () => {
+    const handleCopy = async () => {
         try {
             const text = `${quote.body} - [${citation}]${QUOTE_WATERMARK}`;
             await Clipboard.setStringAsync(text);
@@ -35,7 +35,7 @@ export function QuoteCard({ quote }: Props) {
         } catch {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
-    }, [quote, citation, fadeAnim]);
+    };
 
     const handleOpenUrl = async () => {
         if (!quote.url) return;

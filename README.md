@@ -1,5 +1,15 @@
 # Salat10
 
+[![wakatime](https://wakatime.com/badge/user/a0b906ce-b8e7-4463-8bce-383238df6d4b/project/b2ee8421-f639-4521-827c-e78999086ed6.svg)](https://wakatime.com/badge/user/a0b906ce-b8e7-4463-8bce-383238df6d4b/project/b2ee8421-f639-4521-827c-e78999086ed6)
+[![codecov](https://codecov.io/gh/ragaeeb/salat10-native/graph/badge.svg?token=L0OM6TGQVP)](https://codecov.io/gh/ragaeeb/salat10-native)
+[![Expo SDK](https://img.shields.io/badge/Expo%20SDK-55-000020?logo=expo)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.83-61DAFB?logo=react)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Bun](https://img.shields.io/badge/Package%20Manager-Bun-000000?logo=bun)](https://bun.sh/)
+[![EAS Build](https://img.shields.io/badge/Builds-EAS-0B1021?logo=expo)](https://docs.expo.dev/build/introduction/)
+[![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-0f88b3)](https://expo.dev/)
+[![Offline First](https://img.shields.io/badge/Offline-First-16a34a)](#features)
+
 An Islamic prayer times app built with React Native and Expo. Displays accurate prayer times, monthly timetables, prayer trend charts, and an AR Qibla compass -- all calculated on-device with no server required.
 
 ## Features
@@ -143,9 +153,7 @@ salat10-native/
 │   ├── qibla.ts                # Qibla bearing calculation + compass smoothing
 │   ├── quotes.ts               # Quote filtering by prayer, date, Hijri month, weekday
 │   ├── settings.ts             # Calculation method presets and parameter creation
-│   ├── store-utils.ts          # Pure functions extracted from Zustand store
-│   ├── timeline.ts             # Normalize prayer times to [0..1] for animations
-│   └── utils.ts                # Timing array helpers
+│   └── store-utils.ts          # Pure functions extracted from Zustand store
 │
 ├── store/                      # State management
 │   └── usePrayerStore.ts       # Zustand store with AsyncStorage persistence
@@ -154,8 +162,7 @@ salat10-native/
 │   ├── hijri.ts                # HijriDate type
 │   ├── prayer.ts               # ComputedPrayerData type
 │   ├── quote.ts                # Quote with filtering fields
-│   ├── settings.ts             # Settings, MethodValue types
-│   └── timeline.ts             # Timeline, DayData, Timing types
+│   └── settings.ts             # Settings, MethodValue types
 │
 ├── constants/
 │   └── theme.ts                # Centralized design tokens (colors, spacing, radii, fonts)
@@ -283,7 +290,7 @@ bun start
 
 ### Quotes keep changing rapidly
 
-This was a bug that has been fixed. If you see it, make sure `useMotivationalQuote` uses `useMemo` with `currentData` as the dependency so `getRandomQuote` only runs when the active prayer changes, not on every render tick.
+This was a bug that has been fixed. The React Compiler now automatically memoizes the computation so `getRandomQuote` only runs when the active prayer changes, not on every render tick.
 
 ### EAS build fails with "Which account should own this project?"
 
@@ -324,6 +331,41 @@ Any component that uses browser/device APIs (`navigator`, `window`, etc.) must b
 | `production` | App Store / Google Play submission | Store |
 
 Each profile has an associated **update channel** for OTA updates via `expo-updates`.
+
+## CI/CD Setup
+
+The GitHub Actions workflow (`.github/workflows/build.yml`) runs tests and typechecking on every PR, and triggers an EAS production build when code is pushed to `main`. The production build step requires an `EXPO_TOKEN` secret.
+
+### Setting up `EXPO_TOKEN`
+
+Go to your [Expo Access Tokens](https://expo.dev/settings/access-tokens) page (sign in if prompted). There are two ways to generate a token:
+
+**Option A: Robot User (recommended for CI)**
+
+1. Under **Robot users**, click **+ Add robot**
+2. Name it `github-actions`
+3. Select the **Developer** role (can publish and view all projects)
+4. Click **Create robot**
+5. Once created, click on the robot user to generate an access token for it
+6. Copy the token immediately (it won't be shown again)
+
+**Option B: Personal Access Token**
+
+1. Under **Personal access tokens**, click **+ Create token**
+2. Enter a name like `github-actions`
+3. Click **Generate new token**
+4. Copy the token immediately (it won't be shown again)
+
+Option A is preferred because the robot token isn't tied to your personal session — if you change your password or revoke your own sessions, CI keeps working.
+
+**Then add it to GitHub:**
+
+1. In your GitHub repository, go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Name: `EXPO_TOKEN`, Value: paste the token
+4. Click **Add secret**
+
+The workflow also uses an optional `CODECOV_TOKEN` secret for uploading test coverage. You can get one by connecting your repo at [codecov.io](https://codecov.io).
 
 ## Contributing
 

@@ -1,7 +1,5 @@
 import type { HijriDate } from '@/types/hijri';
-import type { DayData, Timeline } from '@/types/timeline';
-import { MINUTES_IN_DAY, salatLabels } from './constants';
-import { pick } from './utils';
+import { MINUTES_IN_DAY } from './constants';
 
 export const formatTime = (t: Date, timeZone: string) => {
     const time = new Date(t).toLocaleTimeString('en-US', {
@@ -32,32 +30,3 @@ export const formatMinutesLabel = (value: number) => {
 export const formatHijriDate = (hijri: HijriDate) => {
     return `${hijri.day}, ${hijri.date} ${hijri.month} ${hijri.year} AH`;
 };
-
-export const formatCoordinate = (value: number, positiveLabel: string, negativeLabel: string) => {
-    return `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positiveLabel : negativeLabel}`;
-};
-
-export function phaseLabelAndTime(p: number, tl: Timeline, timings: DayData['timings'], tz: string) {
-    if (p < tl.sunrise) {
-        return { label: salatLabels.fajr, time: formatTime(pick(timings, 'fajr')!, tz) };
-    }
-    if (p < tl.dhuhr) {
-        return { label: salatLabels.sunrise, time: formatTime(pick(timings, 'sunrise')!, tz) };
-    }
-    if (p < tl.asr) {
-        return { label: salatLabels.dhuhr, time: formatTime(pick(timings, 'dhuhr')!, tz) };
-    }
-    if (p < tl.maghrib) {
-        return { label: salatLabels.asr, time: formatTime(pick(timings, 'asr')!, tz) };
-    }
-    if (p < tl.isha) {
-        return { label: salatLabels.maghrib, time: formatTime(pick(timings, 'maghrib')!, tz) };
-    }
-    if (p < tl.midNight) {
-        return { label: salatLabels.isha, time: formatTime(pick(timings, 'isha')!, tz) };
-    }
-    if (p < tl.lastThird) {
-        return { label: salatLabels.middleOfTheNight, time: formatTime(pick(timings, 'middleOfTheNight')!, tz) };
-    }
-    return { label: salatLabels.lastThirdOfTheNight, time: formatTime(pick(timings, 'lastThirdOfTheNight')!, tz) };
-}

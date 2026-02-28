@@ -18,6 +18,8 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+.minimax
+
 # Metro
 .metro-health-check*
 

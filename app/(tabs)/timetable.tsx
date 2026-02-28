@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/constants/theme';
@@ -26,16 +26,13 @@ export default function TimetableScreen() {
     const config = useCalculationConfig();
     const [monthOffset, setMonthOffset] = useState(0);
 
-    const targetDate = useMemo(() => {
+    const targetDate = (() => {
         const d = new Date();
         d.setMonth(d.getMonth() + monthOffset);
         return d;
-    }, [monthOffset]);
+    })();
 
-    const schedule = useMemo(() => {
-        if (!hasValidCoords) return null;
-        return monthly(salatLabels, config, targetDate);
-    }, [hasValidCoords, config, targetDate]);
+    const schedule = hasValidCoords ? monthly(salatLabels, config, targetDate) : null;
 
     if (!hasValidCoords) {
         return (
@@ -58,11 +55,6 @@ export default function TimetableScreen() {
         return timing?.time ?? '—';
     };
 
-    const extractDayNumber = (dateStr: string): string => {
-        const match = dateStr.match(/\b(\d{1,2})\b/);
-        return match?.[1] ?? '';
-    };
-
     const renderHeader = () => (
         <View style={styles.headerRow}>
             <View style={styles.dateCol}>
@@ -79,14 +71,13 @@ export default function TimetableScreen() {
     );
 
     const renderRow = ({ item, index }: { item: DailyResult; index: number }) => {
-        const dayNum = extractDayNumber(item.date);
-        const isToday =
-            monthOffset === 0 && new Date().getDate() === Number.parseInt(dayNum, 10);
+        const dayNum = item.dayOfMonth;
+        const isToday = monthOffset === 0 && new Date().getDate() === dayNum;
 
         return (
             <View style={[styles.dataRow, isToday && styles.dataRowToday, index % 2 === 0 && styles.dataRowEven]}>
                 <View style={styles.dateCol}>
-                    <Text style={[styles.dateText, isToday && styles.dateTodayText]}>{dayNum}</Text>
+                    <Text style={[styles.dateText, isToday && styles.dateTodayText]}>{String(dayNum)}</Text>
                 </View>
                 {PRAYER_COLUMNS.map((col) => (
                     <View key={col} style={styles.timeCol}>

@@ -27,6 +27,25 @@ const GITHUB_URL = 'https://github.com/ragaeeb/salat10-native';
 const PRIVACY_POLICY_URL = `${GITHUB_URL}/blob/main/PRIVACY_POLICY.md`;
 const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 
+const isValidLatitude = (v: string) => {
+    const n = Number.parseFloat(v);
+    return v !== '' && Number.isFinite(n) && n >= -90 && n <= 90;
+};
+
+const isValidLongitude = (v: string) => {
+    const n = Number.parseFloat(v);
+    return v !== '' && Number.isFinite(n) && n >= -180 && n <= 180;
+};
+
+const isValidTimezone = (tz: string) => {
+    try {
+        Intl.DateTimeFormat(undefined, { timeZone: tz });
+        return true;
+    } catch {
+        return false;
+    }
+};
+
 export default function SettingsScreen() {
     const router = useRouter();
     const settings = useSettings();
@@ -35,13 +54,45 @@ export default function SettingsScreen() {
     const { loading: locationLoading, error: locationError, requestLocation } = useNativeLocation();
     const [methodPickerVisible, setMethodPickerVisible] = useState(false);
 
+    const [localLat, setLocalLat] = useState(settings.latitude);
+    const [localLon, setLocalLon] = useState(settings.longitude);
+    const [localTz, setLocalTz] = useState(settings.timeZone);
+    const [localFajr, setLocalFajr] = useState(settings.fajrAngle);
+    const [localIsha, setLocalIsha] = useState(settings.ishaAngle);
+    const [localIshaInt, setLocalIshaInt] = useState(settings.ishaInterval);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+    const commitField = (field: string, value: string) => {
+        const errors = { ...validationErrors };
+        delete errors[field];
+
+        if (field === 'latitude' && value !== '' && !isValidLatitude(value)) {
+            errors[field] = 'Must be between -90 and 90';
+        } else if (field === 'longitude' && value !== '' && !isValidLongitude(value)) {
+            errors[field] = 'Must be between -180 and 180';
+        } else if (field === 'timeZone' && value !== '' && !isValidTimezone(value)) {
+            errors[field] = 'Invalid timezone';
+        }
+
+        setValidationErrors(errors);
+
+        if (!errors[field]) {
+            updateSettings({ [field]: value });
+        }
+    };
+
     const handleUseMyLocation = async () => {
         const result = await requestLocation();
         if (result) {
+            const lat = result.latitude.toFixed(4);
+            const lon = result.longitude.toFixed(4);
+            setLocalLat(lat);
+            setLocalLon(lon);
+            setValidationErrors({});
             const addressParts = [result.city, result.state, result.country].filter(Boolean);
             updateSettings({
-                latitude: result.latitude.toFixed(4),
-                longitude: result.longitude.toFixed(4),
+                latitude: lat,
+                longitude: lon,
                 address: addressParts.join(', '),
                 ...(result.city && { city: result.city }),
                 ...(result.state && { state: result.state }),
@@ -53,11 +104,17 @@ export default function SettingsScreen() {
     const handleMethodSelect = (value: MethodValue) => {
         const preset = methodPresets[value];
         if (preset) {
+            const fajr = preset.fajrAngle.toString();
+            const isha = preset.ishaAngle.toString();
+            const interval = preset.ishaInterval.toString();
+            setLocalFajr(fajr);
+            setLocalIsha(isha);
+            setLocalIshaInt(interval);
             updateSettings({
                 method: value,
-                fajrAngle: preset.fajrAngle.toString(),
-                ishaAngle: preset.ishaAngle.toString(),
-                ishaInterval: preset.ishaInterval.toString(),
+                fajrAngle: fajr,
+                ishaAngle: isha,
+                ishaInterval: interval,
             });
         }
         setMethodPickerVisible(false);
@@ -66,7 +123,21 @@ export default function SettingsScreen() {
     const handleReset = () => {
         Alert.alert('Reset Settings', 'Are you sure you want to reset all settings to defaults?', [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Reset', style: 'destructive', onPress: resetSettings },
+            {
+                text: 'Reset',
+                style: 'destructive',
+                onPress: () => {
+                    resetSettings();
+                    const defaults = usePrayerStore.getState().settings;
+                    setLocalLat(defaults.latitude);
+                    setLocalLon(defaults.longitude);
+                    setLocalTz(defaults.timeZone);
+                    setLocalFajr(defaults.fajrAngle);
+                    setLocalIsha(defaults.ishaAngle);
+                    setLocalIshaInt(defaults.ishaInterval);
+                    setValidationErrors({});
+                },
+            },
         ]);
     };
 
@@ -105,35 +176,41 @@ export default function SettingsScreen() {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Latitude</Text>
                             <TextInput
-                                style={styles.input}
-                                value={settings.latitude}
-                                onChangeText={(v) => updateSettings({ latitude: v })}
+                                style={[styles.input, validationErrors.latitude && styles.inputError]}
+                                value={localLat}
+                                onChangeText={setLocalLat}
+                                onBlur={() => commitField('latitude', localLat)}
                                 keyboardType="numeric"
                                 placeholder="e.g. 43.6532"
                                 placeholderTextColor={theme.colors.mutedForeground}
                             />
+                            {validationErrors.latitude && <Text style={styles.fieldError}>{validationErrors.latitude}</Text>}
                         </View>
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Longitude</Text>
                             <TextInput
-                                style={styles.input}
-                                value={settings.longitude}
-                                onChangeText={(v) => updateSettings({ longitude: v })}
+                                style={[styles.input, validationErrors.longitude && styles.inputError]}
+                                value={localLon}
+                                onChangeText={setLocalLon}
+                                onBlur={() => commitField('longitude', localLon)}
                                 keyboardType="numeric"
                                 placeholder="e.g. -79.3832"
                                 placeholderTextColor={theme.colors.mutedForeground}
                             />
+                            {validationErrors.longitude && <Text style={styles.fieldError}>{validationErrors.longitude}</Text>}
                         </View>
                     </View>
 
                     <Text style={styles.label}>Timezone</Text>
                     <TextInput
-                        style={styles.input}
-                        value={settings.timeZone}
-                        onChangeText={(v) => updateSettings({ timeZone: v })}
+                        style={[styles.input, validationErrors.timeZone && styles.inputError]}
+                        value={localTz}
+                        onChangeText={setLocalTz}
+                        onBlur={() => commitField('timeZone', localTz)}
                         placeholder="e.g. America/Toronto"
                         placeholderTextColor={theme.colors.mutedForeground}
                     />
+                    {validationErrors.timeZone && <Text style={styles.fieldError}>{validationErrors.timeZone}</Text>}
                 </View>
 
                 {/* Calculation Method Section */}
@@ -151,8 +228,9 @@ export default function SettingsScreen() {
                             <Text style={styles.label}>Fajr Angle</Text>
                             <TextInput
                                 style={styles.input}
-                                value={settings.fajrAngle}
-                                onChangeText={(v) => updateSettings({ fajrAngle: v })}
+                                value={localFajr}
+                                onChangeText={setLocalFajr}
+                                onBlur={() => commitField('fajrAngle', localFajr)}
                                 keyboardType="numeric"
                                 placeholderTextColor={theme.colors.mutedForeground}
                             />
@@ -161,8 +239,9 @@ export default function SettingsScreen() {
                             <Text style={styles.label}>Isha Angle</Text>
                             <TextInput
                                 style={styles.input}
-                                value={settings.ishaAngle}
-                                onChangeText={(v) => updateSettings({ ishaAngle: v })}
+                                value={localIsha}
+                                onChangeText={setLocalIsha}
+                                onBlur={() => commitField('ishaAngle', localIsha)}
                                 keyboardType="numeric"
                                 placeholderTextColor={theme.colors.mutedForeground}
                             />
@@ -172,8 +251,9 @@ export default function SettingsScreen() {
                     <Text style={styles.label}>Isha Interval (minutes)</Text>
                     <TextInput
                         style={styles.input}
-                        value={settings.ishaInterval}
-                        onChangeText={(v) => updateSettings({ ishaInterval: v })}
+                        value={localIshaInt}
+                        onChangeText={setLocalIshaInt}
+                        onBlur={() => commitField('ishaInterval', localIshaInt)}
                         keyboardType="numeric"
                         placeholder="0 for angle-based"
                         placeholderTextColor={theme.colors.mutedForeground}
@@ -361,6 +441,14 @@ const styles = StyleSheet.create({
         fontSize: theme.fontSize.xs,
         color: theme.colors.mutedForeground,
         marginTop: 4,
+    },
+    inputError: {
+        borderColor: theme.colors.destructive,
+    },
+    fieldError: {
+        fontSize: theme.fontSize.xs,
+        color: theme.colors.destructive,
+        marginTop: 2,
     },
     methodSelector: {
         flexDirection: 'row',

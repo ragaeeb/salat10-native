@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import * as Location from 'expo-location';
 
 type LocationState = {
@@ -13,7 +13,7 @@ type LocationState = {
 export const useNativeLocation = () => {
     const [state, setState] = useState<LocationState>({ loading: false, error: null });
 
-    const requestLocation = useCallback(async (): Promise<{
+    const requestLocation = async (): Promise<{
         latitude: number;
         longitude: number;
         city?: string;
@@ -66,7 +66,7 @@ export const useNativeLocation = () => {
             setState({ loading: false, error: message });
             return null;
         }
-    }, []);
+    };
 
     return { ...state, requestLocation };
 };

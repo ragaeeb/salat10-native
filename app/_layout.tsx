@@ -2,14 +2,28 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { theme } from '@/constants/theme';
+import { useHasHydrated, usePrayerStore } from '@/store/usePrayerStore';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+    const hasHydrated = useHasHydrated();
+
     useEffect(() => {
-        SplashScreen.hideAsync();
+        if (hasHydrated) SplashScreen.hideAsync();
+    }, [hasHydrated]);
+
+    useEffect(() => {
+        const sub = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                usePrayerStore.getState().computePrayerTimes();
+                usePrayerStore.getState()._scheduleNextUpdate();
+            }
+        });
+        return () => sub.remove();
     }, []);
 
     return (
