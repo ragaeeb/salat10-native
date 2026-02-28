@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
@@ -8,6 +9,9 @@ import type { ComputedPrayerData } from '@/types/prayer';
 import type { Settings } from '@/types/settings';
 
 const STORAGE_KEY = 'salat10-native';
+
+const noopStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+const isSSR = Platform.OS === 'web' && typeof window === 'undefined';
 
 type PrayerStore = {
     settings: Settings;
@@ -102,7 +106,7 @@ export const usePrayerStore = create<PrayerStore>()(
         }),
         {
             name: STORAGE_KEY,
-            storage: createJSONStorage(() => AsyncStorage),
+            storage: createJSONStorage(() => (isSSR ? noopStorage : AsyncStorage)),
             onRehydrateStorage: () => {
                 return (state, error) => {
                     usePrayerStore.setState({ hasHydrated: true });

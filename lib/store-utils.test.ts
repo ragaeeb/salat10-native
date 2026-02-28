@@ -115,6 +115,39 @@ describe('store-utils', () => {
         it('should return null for null data', () => {
             expect(findNextEventTime(null)).toBeNull();
         });
+
+        it('should return the next upcoming event when current time is between events', () => {
+            const date = new Date('2024-03-15T12:00:00-05:00');
+            const data = computePrayerTimesForDate(validSettings, date)!;
+            const dhuhrMs = data.prayerTimes.dhuhr.getTime();
+            const asrMs = data.prayerTimes.asr.getTime();
+            const midpoint = dhuhrMs + Math.floor((asrMs - dhuhrMs) / 2);
+
+            const originalNow = Date.now;
+            Date.now = () => midpoint;
+
+            try {
+                const next = findNextEventTime(data);
+                expect(next).not.toBeNull();
+                expect(next!.getTime()).toBe(asrMs);
+            } finally {
+                Date.now = originalNow;
+            }
+        });
+
+        it('should return null when all events have passed', () => {
+            const date = new Date('2024-03-15T12:00:00-05:00');
+            const data = computePrayerTimesForDate(validSettings, date)!;
+
+            const originalNow = Date.now;
+            Date.now = () => new Date('2024-03-16T12:00:00-05:00').getTime();
+
+            try {
+                expect(findNextEventTime(data)).toBeNull();
+            } finally {
+                Date.now = originalNow;
+            }
+        });
     });
 
     describe('getMillisecondsUntilNextUpdate', () => {

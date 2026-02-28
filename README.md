@@ -153,9 +153,7 @@ salat10-native/
 │   ├── qibla.ts                # Qibla bearing calculation + compass smoothing
 │   ├── quotes.ts               # Quote filtering by prayer, date, Hijri month, weekday
 │   ├── settings.ts             # Calculation method presets and parameter creation
-│   ├── store-utils.ts          # Pure functions extracted from Zustand store
-│   ├── timeline.ts             # Normalize prayer times to [0..1] for animations
-│   └── utils.ts                # Timing array helpers
+│   └── store-utils.ts          # Pure functions extracted from Zustand store
 │
 ├── store/                      # State management
 │   └── usePrayerStore.ts       # Zustand store with AsyncStorage persistence
@@ -164,8 +162,7 @@ salat10-native/
 │   ├── hijri.ts                # HijriDate type
 │   ├── prayer.ts               # ComputedPrayerData type
 │   ├── quote.ts                # Quote with filtering fields
-│   ├── settings.ts             # Settings, MethodValue types
-│   └── timeline.ts             # Timeline, DayData, Timing types
+│   └── settings.ts             # Settings, MethodValue types
 │
 ├── constants/
 │   └── theme.ts                # Centralized design tokens (colors, spacing, radii, fonts)
@@ -334,6 +331,41 @@ Any component that uses browser/device APIs (`navigator`, `window`, etc.) must b
 | `production` | App Store / Google Play submission | Store |
 
 Each profile has an associated **update channel** for OTA updates via `expo-updates`.
+
+## CI/CD Setup
+
+The GitHub Actions workflow (`.github/workflows/build.yml`) runs tests and typechecking on every PR, and triggers an EAS production build when code is pushed to `main`. The production build step requires an `EXPO_TOKEN` secret.
+
+### Setting up `EXPO_TOKEN`
+
+Go to your [Expo Access Tokens](https://expo.dev/settings/access-tokens) page (sign in if prompted). There are two ways to generate a token:
+
+**Option A: Robot User (recommended for CI)**
+
+1. Under **Robot users**, click **+ Add robot**
+2. Name it `github-actions`
+3. Select the **Developer** role (can publish and view all projects)
+4. Click **Create robot**
+5. Once created, click on the robot user to generate an access token for it
+6. Copy the token immediately (it won't be shown again)
+
+**Option B: Personal Access Token**
+
+1. Under **Personal access tokens**, click **+ Create token**
+2. Enter a name like `github-actions`
+3. Click **Generate new token**
+4. Copy the token immediately (it won't be shown again)
+
+Option A is preferred because the robot token isn't tied to your personal session — if you change your password or revoke your own sessions, CI keeps working.
+
+**Then add it to GitHub:**
+
+1. In your GitHub repository, go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Name: `EXPO_TOKEN`, Value: paste the token
+4. Click **Add secret**
+
+The workflow also uses an optional `CODECOV_TOKEN` secret for uploading test coverage. You can get one by connecting your repo at [codecov.io](https://codecov.io).
 
 ## Contributing
 
