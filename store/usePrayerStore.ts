@@ -104,14 +104,13 @@ export const usePrayerStore = create<PrayerStore>()(
             name: STORAGE_KEY,
             storage: createJSONStorage(() => AsyncStorage),
             onRehydrateStorage: () => {
-                return (state) => {
-                    if (state) {
-                        usePrayerStore.setState({ hasHydrated: true });
+                return (state, error) => {
+                    usePrayerStore.setState({ hasHydrated: true });
+                    if (error || !state) return;
 
-                        if (hasValidCoordinates(state.settings)) {
-                            state.computePrayerTimes();
-                            state._scheduleNextUpdate();
-                        }
+                    if (hasValidCoordinates(state.settings)) {
+                        state.computePrayerTimes();
+                        state._scheduleNextUpdate();
                     }
                 };
             },

@@ -16,17 +16,15 @@ export function computePrayerTimesForDate(settings: Settings, date: Date): Compu
 
     const lat = Number.parseFloat(settings.latitude);
     const lon = Number.parseFloat(settings.longitude);
-    const fajrAngle = Number.parseFloat(settings.fajrAngle);
-    const ishaAngle = Number.parseFloat(settings.ishaAngle);
-    const ishaInterval = Number.parseFloat(settings.ishaInterval);
+    const rawFajr = Number.parseFloat(settings.fajrAngle);
+    const rawIsha = Number.parseFloat(settings.ishaAngle);
+    const rawInterval = Number.parseFloat(settings.ishaInterval);
+    const fajrAngle = Number.isFinite(rawFajr) ? rawFajr : 0;
+    const ishaAngle = Number.isFinite(rawIsha) ? rawIsha : 0;
+    const ishaInterval = Number.isFinite(rawInterval) ? rawInterval : 0;
 
     try {
-        const params = createParameters({
-            fajrAngle: Number.isFinite(fajrAngle) ? fajrAngle : 0,
-            ishaAngle: Number.isFinite(ishaAngle) ? ishaAngle : 0,
-            ishaInterval: Number.isFinite(ishaInterval) ? ishaInterval : 0,
-            method: settings.method,
-        });
+        const params = createParameters({ fajrAngle, ishaAngle, ishaInterval, method: settings.method });
 
         const coordinates = new Coordinates(lat, lon);
         const prayerTimes = new PrayerTimes(coordinates, date, params);

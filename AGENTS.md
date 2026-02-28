@@ -63,7 +63,8 @@ Do not use `npm` scripts/installs in this repo unless explicitly requested.
 - Keep logic in `lib/*` pure where possible.
 - Reuse centralized theme tokens from `constants/theme.ts`.
 - Use `@/*` path aliases instead of deep relative imports.
-- Add dependencies with latest versions (`@latest`) when installing new packages.
+- For React Native / Expo packages, use `bunx expo install <pkg>` to ensure SDK compatibility. Do not use `@latest` for Expo-managed packages.
+- For non-Expo packages, use `bun add <pkg>` (latest by default).
 
 ## Testing Conventions
 

@@ -138,7 +138,7 @@ export const writeIslamicDate = (adjustment: number, today: Date): HijriDate => 
         date: result.islamicDay,
         day: weekdayName,
         month: monthName,
-        monthIndex: result.islamicMonthIndex,
+        monthIndex: safeMonthIndex,
         year: result.islamicYear,
     };
 };

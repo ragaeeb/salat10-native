@@ -118,12 +118,36 @@ describe('store-utils', () => {
     });
 
     describe('getMillisecondsUntilNextUpdate', () => {
-        it('should return positive milliseconds for upcoming event', () => {
-            const date = new Date('2024-03-15T05:00:00-05:00');
+        it('should return positive milliseconds until next prayer event', () => {
+            const date = new Date('2024-03-15T12:00:00-05:00');
             const data = computePrayerTimesForDate(validSettings, date);
-            const ms = getMillisecondsUntilNextUpdate(data);
 
-            expect(ms).toBeGreaterThanOrEqual(0);
+            const originalNow = Date.now;
+            Date.now = () => new Date('2024-03-15T12:00:00-05:00').getTime();
+
+            try {
+                const ms = getMillisecondsUntilNextUpdate(data);
+                expect(ms).toBeGreaterThan(0);
+                expect(ms).toBeLessThan(24 * 60 * 60 * 1000);
+            } finally {
+                Date.now = originalNow;
+            }
+        });
+
+        it('should return milliseconds until midnight when no events remain', () => {
+            const date = new Date('2024-03-15T12:00:00-05:00');
+            const data = computePrayerTimesForDate(validSettings, date);
+
+            const originalNow = Date.now;
+            Date.now = () => new Date('2024-03-16T03:00:00-05:00').getTime();
+
+            try {
+                const ms = getMillisecondsUntilNextUpdate(data);
+                expect(ms).toBeGreaterThan(0);
+                expect(ms).toBeLessThanOrEqual(24 * 60 * 60 * 1000);
+            } finally {
+                Date.now = originalNow;
+            }
         });
     });
 });

@@ -21,8 +21,8 @@ describe('settings', () => {
 
     describe('methodLabelMap', () => {
         it('should map method values to labels', () => {
-            expect(methodLabelMap.MuslimWorldLeague).toInclude('Muslim World League');
-            expect(methodLabelMap.NorthAmerica).toInclude('North America - ISNA');
+            expect(methodLabelMap.MuslimWorldLeague).toContain('Muslim World League');
+            expect(methodLabelMap.NorthAmerica).toContain('North America - ISNA');
         });
 
         it('should have labels for all presets', () => {
@@ -33,19 +33,17 @@ describe('settings', () => {
     });
 
     describe('createParameters', () => {
-        it('should create parameters from method preset', () => {
+        it('should create parameters with correct angle values', () => {
             const params = createParameters({ fajrAngle: 18, ishaAngle: 17, ishaInterval: 0, method: 'MuslimWorldLeague' });
-            expect(params).toBeDefined();
+            expect(params.fajrAngle).toBe(18);
+            expect(params.ishaAngle).toBe(17);
+            expect(params.ishaInterval).toBe(0);
         });
 
-        it('should create parameters with custom angles', () => {
-            const params = createParameters({ fajrAngle: 18, ishaAngle: 17, ishaInterval: 0, method: 'MuslimWorldLeague' });
-            expect(params).toBeDefined();
-        });
-
-        it('should handle isha interval', () => {
+        it('should handle isha interval precedence over angle', () => {
             const params = createParameters({ fajrAngle: 18, ishaAngle: 0, ishaInterval: 90, method: 'Karachi' });
-            expect(params).toBeDefined();
+            expect(params.fajrAngle).toBe(18);
+            expect(params.ishaInterval).toBe(90);
         });
     });
 });

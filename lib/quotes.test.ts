@@ -11,7 +11,7 @@ const createPrayerData = (date: Date): ComputedPrayerData => {
     const prayerTimes = new PrayerTimes(coords, date, params);
     const sunnahTimes = new SunnahTimes(prayerTimes);
 
-    return { computedAt: Date.now(), date, prayerTimes, sunnahTimes };
+    return { computedAt: date.getTime(), date, prayerTimes, sunnahTimes };
 };
 
 describe('filterQuotesByPresent', () => {
@@ -56,7 +56,8 @@ describe('filterQuotesByPresent', () => {
 
     describe('after event filtering', () => {
         it('should match quotes with after.events when current prayer matches', () => {
-            const data = createPrayerData(new Date(2022, 3, 1, 21, 0, 0));
+            const data = createPrayerData(new Date(2022, 3, 1, 12, 0, 0));
+            data.date = new Date(data.prayerTimes.isha.getTime() + 30 * 60 * 1000);
 
             const quotes: Quote[] = [
                 { after: { events: ['isha'] }, author: 'Test', body: 'After Isha', title: 'Test' },
@@ -64,8 +65,8 @@ describe('filterQuotesByPresent', () => {
             ];
 
             const filtered = filterQuotesByPresent(data, quotes);
-            expect(filtered.length).toBeGreaterThanOrEqual(1);
-            expect(filtered.some((q) => q.body === 'After Isha')).toBe(true);
+            expect(filtered).toHaveLength(1);
+            expect(filtered[0]!.body).toBe('After Isha');
         });
     });
 

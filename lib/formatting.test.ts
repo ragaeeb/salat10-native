@@ -34,7 +34,7 @@ describe('formatTime', () => {
 
 describe('formatDate', () => {
     it('should format date with full details', () => {
-        const date = new Date('2025-01-15');
+        const date = new Date(2025, 0, 15);
         const result = formatDate(date);
         expect(result).toContain('January');
         expect(result).toContain('15');
@@ -42,7 +42,7 @@ describe('formatDate', () => {
     });
 
     it('should include weekday', () => {
-        const date = new Date('2025-01-01');
+        const date = new Date(2025, 0, 1);
         const result = formatDate(date);
         expect(result).toMatch(/Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/);
     });

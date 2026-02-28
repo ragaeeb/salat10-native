@@ -51,7 +51,7 @@ jobs:
   cd:
     name: EAS Production Build
     needs: ci
-    if: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') && secrets.EXPO_TOKEN != '' }}
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,6 +66,9 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
+      - name: Ensure EXPO_TOKEN is set
+        run: test -n "${{ secrets.EXPO_TOKEN }}"
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8

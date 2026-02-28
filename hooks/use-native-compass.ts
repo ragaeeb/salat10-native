@@ -25,8 +25,6 @@ export const useNativeCompass = () => {
                     return;
                 }
 
-                setAvailable(true);
-
                 const sub = await Location.watchHeadingAsync((headingData) => {
                     if (!mounted) return;
                     if (headingData.trueHeading >= 0) {
@@ -42,6 +40,8 @@ export const useNativeCompass = () => {
                 }
 
                 subscriptionRef.current = sub;
+                setAvailable(true);
+                setError(null);
             } catch (err) {
                 if (!mounted) return;
                 setAvailable(false);
