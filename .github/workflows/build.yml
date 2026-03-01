@@ -49,6 +49,9 @@ jobs:
       - name: Expo doctor
         run: bunx expo-doctor
 
+      - name: Check dependency alignment
+        run: bun run check-deps
+
       - name: Build app bundles
         run: bunx expo export --platform all --output-dir dist --non-interactive
 
