@@ -15,7 +15,9 @@
     "build:production": "eas build --profile production --platform all",
     "device:register": "eas device:create",
     "deploy": "./scripts/build.sh",
-    "test": "bun test"
+    "test": "bun test",
+    "check-deps": "rnx-align-deps --diff-mode allow-subset",
+    "fix-deps": "rnx-align-deps --diff-mode allow-subset --write"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -55,6 +57,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@rnx-kit/align-deps": "^3.4.2",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
@@ -67,5 +70,24 @@
   "private": true,
   "trustedDependencies": [
     "@shopify/react-native-skia"
-  ]
+  ],
+  "rnx-kit": {
+    "kitType": "app",
+    "alignDeps": {
+      "requirements": [
+        "react-native@0.83"
+      ],
+      "capabilities": [
+        "animation",
+        "gestures",
+        "navigation/native",
+        "react",
+        "react-dom",
+        "safe-area",
+        "screens",
+        "storage",
+        "svg"
+      ]
+    }
+  }
 }
